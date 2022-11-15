@@ -1,0 +1,26 @@
+server:
+  8080
+spring:
+  datasource:
+    druid:
+      url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: root
+      password: 123456
+      driver-class-name: com.mysql.cj.jdbc.Driver
+  application:
+    #项目名字
+    name: reggi_take_out
+mybatis-plus:
+  configuration:
+    #开启驼峰命名
+    map-underscore-to-camel-case: true
+    #记录日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      #雪花算法
+      id-type: Assign_ID
+
+reggie:
+  path: D:\
+
