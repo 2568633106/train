@@ -1,8 +1,6 @@
 package edu.zk.domain;
 
-import java.io.Serializable;
-
-public class Member implements Serializable {
+public class Member {
     private Long id;
 
     private String mobile;

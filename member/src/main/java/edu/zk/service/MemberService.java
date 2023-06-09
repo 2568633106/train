@@ -2,7 +2,7 @@ package edu.zk.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import edu.zk.controller.ControllerExceptionHandler;
+import cn.hutool.core.util.ObjectUtil;
 import edu.zk.domain.Member;
 import edu.zk.domain.MemberExample;
 import edu.zk.exception.BusinessException;
@@ -23,70 +23,88 @@ import java.util.List;
 
 @Service
 public class MemberService {
-    private static final Logger LOG = LoggerFactory.getLogger(ControllerExceptionHandler.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(MemberService.class);
 
     @Resource
-    MemberMapper memberMapper;
-    public Long count(){
-        return memberMapper.countByExample(null);
+    private MemberMapper memberMapper;
+
+    public Integer count() {
+        return Math.toIntExact(memberMapper.countByExample(null));
     }
 
-    //注册的时候数据库有此号码就报错（已存在）。没有就插入此号码的信息。
-    public Long register(MemberRegisterReq mobile){
-        MemberExample memberExample = new MemberExample();
-        memberExample.createCriteria().andMobileEqualTo(mobile.getMobile());
-        List<Member> list = memberMapper.selectByExample(memberExample);
-        if(CollUtil.isNotEmpty(list)){
-            throw new BusinessException(BusinessExceptionEnum.MEMER_MOBILE_EXIST);
+    public long register(MemberRegisterReq req) {
+        String mobile = req.getMobile();
+        Member memberDB = selectByMobile(mobile);
+
+        if (ObjectUtil.isNull(memberDB)) {
+            // return list.get(0).getId();
+            throw new BusinessException(BusinessExceptionEnum.MEMBER_MOBILE_EXIST);
         }
+
         Member member = new Member();
         member.setId(SnowUtil.getSnowflakeNextId());
-        member.setMobile(mobile.getMobile());
+        member.setMobile(mobile);
         memberMapper.insert(member);
         return member.getId();
     }
 
-    //发送验证码的时候，有此手机号则发送，否则创建手机号并插入信息再发送。
-    public void sencode(MemberSendCodeReq req) {
-        MemberExample memberExample = new MemberExample();
-        memberExample.createCriteria().andMobileEqualTo(req.getMobile());
-        List<Member> list = memberMapper.selectByExample(memberExample);
-        if(CollUtil.isEmpty(list)){
-            LOG.info("号码不存在，插入号码信息");
+    public void sendCode(MemberSendCodeReq req) {
+        String mobile = req.getMobile();
+        Member memberDB = selectByMobile(mobile);
+
+        // 如果手机号不存在，则插入一条记录
+        if (ObjectUtil.isNull(memberDB)) {
+            LOG.info("手机号不存在，插入一条记录");
             Member member = new Member();
             member.setId(SnowUtil.getSnowflakeNextId());
-            member.setMobile(req.getMobile());
+            member.setMobile(mobile);
             memberMapper.insert(member);
+        } else {
+            LOG.info("手机号存在，不插入记录");
         }
-        String code="8888";
-//        String code = RandomUtil.randomString(4);
-        LOG.info("生成验证码：{}",code);
 
+        // 生成验证码
+        // String code = RandomUtil.randomString(4);
+        String code = "8888";
+        LOG.info("生成短信验证码：{}", code);
+
+        // 保存短信记录表：手机号，短信验证码，有效期，是否已使用，业务类型，发送时间，使用时间
+        LOG.info("保存短信记录表");
+
+        // 对接短信通道，发送短信
+        LOG.info("对接短信通道");
     }
 
     public MemberLoginResp login(MemberLoginReq req) {
-        String code = req.getCode();
         String mobile = req.getMobile();
-        if(!"8888".equals(code)){
-            throw new BusinessException(BusinessExceptionEnum.MEMER_CODE_ERROR);
-        }
-        Member member = selectByMobile(mobile);
-        if(member==null){
-            throw new BusinessException(BusinessExceptionEnum.MEMER_MOBILE_NOEXIST);
+        String code = req.getCode();
+        Member memberDB = selectByMobile(mobile);
+
+        // 如果手机号不存在，则插入一条记录
+        if (ObjectUtil.isNull(memberDB)) {
+            throw new BusinessException(BusinessExceptionEnum.MEMBER_MOBILE_NOT_EXIST);
         }
 
-        MemberLoginResp memberLoginResp = BeanUtil.copyProperties(member, MemberLoginResp.class);
-        String token = JwtUtil.createToken(member.getId(), member.getMobile());
+        // 校验短信验证码
+        if (!"8888".equals(code)) {
+            throw new BusinessException(BusinessExceptionEnum.MEMBER_MOBILE_CODE_ERROR);
+        }
+
+        MemberLoginResp memberLoginResp = BeanUtil.copyProperties(memberDB, MemberLoginResp.class);
+        String token = JwtUtil.createToken(memberLoginResp.getId(), memberLoginResp.getMobile());
         memberLoginResp.setToken(token);
         return memberLoginResp;
     }
-    public Member selectByMobile(String mobile){
+
+    private Member selectByMobile(String mobile) {
         MemberExample memberExample = new MemberExample();
         memberExample.createCriteria().andMobileEqualTo(mobile);
-        List<Member> members = memberMapper.selectByExample(memberExample);
-        if(members==null||members.size()==0){
+        List<Member> list = memberMapper.selectByExample(memberExample);
+        if (CollUtil.isEmpty(list)) {
             return null;
+        } else {
+            return list.get(0);
         }
-        return members.get(0);
     }
 }

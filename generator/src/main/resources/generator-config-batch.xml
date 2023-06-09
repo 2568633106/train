@@ -41,6 +41,6 @@
                              targetPackage="edu.zk.train.batch.mapper"
                              type="XMLMAPPER"/>
 
-<!--        <table tableName="member" domainObjectName="Member"/>-->
+        <table tableName="member" domainObjectName="Member"/>
     </context>
 </generatorConfiguration>

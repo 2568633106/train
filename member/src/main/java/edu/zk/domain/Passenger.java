@@ -1,9 +1,8 @@
 package edu.zk.domain;
 
-import java.io.Serializable;
 import java.util.Date;
 
-public class Passenger implements Serializable {
+public class Passenger {
     private Long id;
 
     private Long memberId;

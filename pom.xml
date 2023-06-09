@@ -9,6 +9,7 @@
         <module>gateway</module>
         <module>generator</module>
         <module>http</module>
+        <module>business</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -79,8 +80,8 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.mybatis.generator</groupId>
+                <artifactId>mybatis-generator-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

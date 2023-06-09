@@ -1,9 +1,10 @@
 package edu.zk.exception;
 
 public enum BusinessExceptionEnum {
-    MEMER_MOBILE_EXIST("手机号已注册"),
-    MEMER_CODE_ERROR("手机号已注册"),
-    MEMER_MOBILE_NOEXIST("手机号不存在");
+    MEMBER_MOBILE_EXIST("手机号已注册"),
+    MEMBER_MOBILE_CODE_ERROR("验证码错误"),
+    MEMBER_MOBILE_NOT_EXIST("手机号不存在"),
+    BUSINESS_TRAIN_CARRIAGE_INDEX_UNIQUE_ERROR("唯一键值对已存在");
     private String desc;
 
     BusinessExceptionEnum(String desc) {

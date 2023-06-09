@@ -16,8 +16,10 @@ public class MemberController {
     @Resource
     MemberService memberService;
     @GetMapping("/hello")
-    public CommonResp<Long> test(){
-        return new CommonResp<Long>(memberService.count());
+    public CommonResp<Integer> test(){
+        CommonResp<Integer> commonResp = new CommonResp<>();
+        commonResp.setContent(memberService.count());
+        return commonResp;
     }
 
     @PostMapping("/register")
@@ -27,7 +29,7 @@ public class MemberController {
 
     @PostMapping("/send-code")
     public CommonResp<Object> sendcode(@Valid @RequestBody MemberSendCodeReq req){
-        memberService.sencode(req);
+        memberService.sendCode(req);
         return new CommonResp<>();
     }
 

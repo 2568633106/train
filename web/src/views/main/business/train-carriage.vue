@@ -5,7 +5,7 @@
       
     </a-space>
   </p>
-  <a-table :dataSource="passengers"
+  <a-table :dataSource="trainCarriages"
            :columns="columns"
            :pagination="pagination"
            @change="handleTableChange"
@@ -13,9 +13,9 @@
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'operation'">
       </template>
-      <template v-else-if="column.dataIndex === 'type'">
-        <span v-for="item in PASSENGER_TYPE_ARRAY" :key="item.code">
-          <span v-if="item.code === record.type">
+      <template v-else-if="column.dataIndex === 'seatType'">
+        <span v-for="item in SEAT_TYPE_ARRAY" :key="item.code">
+          <span v-if="item.code === record.seatType">
             {{item.desc}}
           </span>
         </span>
@@ -30,20 +30,22 @@ import {notification} from "ant-design-vue";
 import axios from "axios";
 
 export default defineComponent({
-  name: "passenger-view",
+  name: "train-carriage-view",
   setup() {
-    const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
+    const SEAT_TYPE_ARRAY = window.SEAT_TYPE_ARRAY;
     const visible = ref(false);
-    let passenger = ref({
+    let trainCarriage = ref({
       id: undefined,
-      memberId: undefined,
-      name: undefined,
-      idCard: undefined,
-      type: undefined,
+      trainCode: undefined,
+      index: undefined,
+      seatType: undefined,
+      seatCount: undefined,
+      rowCount: undefined,
+      colCount: undefined,
       createTime: undefined,
       updateTime: undefined,
     });
-    const passengers = ref([]);
+    const trainCarriages = ref([]);
     // 分页的三个属性名是固定的
     const pagination = ref({
       total: 0,
@@ -53,24 +55,34 @@ export default defineComponent({
     let loading = ref(false);
     const columns = [
     {
-      title: '会员id',
-      dataIndex: 'memberId',
-      key: 'memberId',
+      title: '车次编号',
+      dataIndex: 'trainCode',
+      key: 'trainCode',
     },
     {
-      title: '姓名',
-      dataIndex: 'name',
-      key: 'name',
+      title: '厢号',
+      dataIndex: 'index',
+      key: 'index',
     },
     {
-      title: '身份证',
-      dataIndex: 'idCard',
-      key: 'idCard',
+      title: '座位类型',
+      dataIndex: 'seatType',
+      key: 'seatType',
     },
     {
-      title: '旅客类型',
-      dataIndex: 'type',
-      key: 'type',
+      title: '座位数',
+      dataIndex: 'seatCount',
+      key: 'seatCount',
+    },
+    {
+      title: '排数',
+      dataIndex: 'rowCount',
+      key: 'rowCount',
+    },
+    {
+      title: '列数',
+      dataIndex: 'colCount',
+      key: 'colCount',
     },
     ];
 
@@ -83,7 +95,7 @@ export default defineComponent({
         };
       }
       loading.value = true;
-      axios.get("/member/admin/passenger/query-list", {
+      axios.get("/business/admin/train-carriage/query-list", {
         params: {
           page: param.page,
           size: param.size
@@ -92,7 +104,7 @@ export default defineComponent({
         loading.value = false;
         let data = response.data;
         if (data.success) {
-          passengers.value = data.content.list;
+          trainCarriages.value = data.content.list;
           // 设置分页控件的值
           pagination.value.current = param.page;
           pagination.value.total = data.content.total;
@@ -119,10 +131,10 @@ export default defineComponent({
     });
 
     return {
-      PASSENGER_TYPE_ARRAY,
-      passenger,
+      SEAT_TYPE_ARRAY,
+      trainCarriage,
       visible,
-      passengers,
+      trainCarriages,
       pagination,
       columns,
       handleTableChange,
