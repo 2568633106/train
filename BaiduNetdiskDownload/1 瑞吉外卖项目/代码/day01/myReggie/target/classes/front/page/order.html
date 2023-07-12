@@ -29,7 +29,6 @@
                     v-model="loading"
                     :finished="finished"
                     finished-text="没有更多了"
-                    @load="getList"
                     >
                     <van-cell v-for="(order,index) in orderList" :key="index" class="item">
                         <div class="timeStatus">

@@ -1,0 +1,10 @@
+logging:
+  level:
+    org:
+      springframework:
+        security: info
+spring:
+  security:
+    user:
+      name: zk
+      password: 123456
